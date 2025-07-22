@@ -1,6 +1,6 @@
 use std::fs::File;
 use std::io::{stdin, BufRead, BufReader};
-use std::{fmt, io};
+use std::{ io};
 use std::collections::HashMap;
 use std::process::Command;
 
@@ -93,7 +93,7 @@ fn event_runner(event:Event,hash_map:&mut HashMap<String, String>){
         "@run" => {
            run(event,hash_map);
         },
-        _ => todo!()
+        _ => println!("tag not found {}",event.tag)
      }
 }
 
