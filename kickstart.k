@@ -1,3 +1,4 @@
-@ask:location pls enter location where to save
-@log saving file to location $location
-@run:location npm.cmd -v $location
+@ask:location what is your location
+@log hey $username you are the first one who test kickstart
+@log now we are going to run command to check node version
+@run:location code.cmd .
