@@ -1,0 +1,24 @@
+1 ICON "kickstart.ico"
+
+1 VERSIONINFO
+FILEVERSION 0.0.0.1
+PRODUCTVERSION 0.0.0.1
+BEGIN
+  BLOCK "StringFileInfo"
+  BEGIN
+    BLOCK "040904B0"
+    BEGIN
+      VALUE "CompanyName", "dev.akash"
+      VALUE "FileDescription", "KickStart file runner CLI App"
+      VALUE "FileVersion", "0.0.0.1"
+      VALUE "ProductName", "kickstart Runner"
+      VALUE "InternalName", "rust_app"
+      VALUE "OriginalFilename", "kickstart.exe"
+      VALUE "ProductVersion", "0.0.0.1"
+    END
+  END
+  BLOCK "VarFileInfo"
+  BEGIN
+    VALUE "Translation", 0x0409, 1200
+  END
+END

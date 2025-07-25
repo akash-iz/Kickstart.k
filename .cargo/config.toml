@@ -6,4 +6,5 @@ panic = "abort"
 strip = "symbols"
 
 [build]
-rustflags = ["-C", "target-cpu=native"]
+#rustflags = ["-C", "target-cpu=native"]
+rustflags = ["-C", "target-cpu=generic"]

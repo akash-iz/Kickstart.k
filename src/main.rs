@@ -126,33 +126,61 @@ fn match_tag(tag: String) -> &'static str {
 
 fn string_mapper(message: String, hash_map: &mut HashMap<String, String>)->String{
    let mut has_seen_dollar:bool = false;
+   let mut start_collecting_key:bool = false;
    let mut add_time:bool = false;
-   let mut need_white_space:bool = false;
+
+   //let mut need_white_space:bool = false;
    let mut result:String = String::with_capacity(32);
    let mut key:String =String::with_capacity(32);
 
    for ch in message.chars() {
       match (ch) {
          '$' => {
-            if(has_seen_dollar){
-               add_time = true;
+
+            if(start_collecting_key){
+               key.push(ch);
+            }else if(has_seen_dollar) {
+               result.push(ch);
             }else{
                has_seen_dollar = true;
             }
+
          },
-         ' ' => {
-            if(has_seen_dollar){
-               add_time = true;
+         '{' => {
+
+            if(start_collecting_key){
+               key.push(ch);
+            }else if(has_seen_dollar) {
+               start_collecting_key=true;
                has_seen_dollar = false;
-               need_white_space=true;
             }else{
                result.push(ch);
             }
+
          },
+         '}' => {
+
+            if(start_collecting_key){
+               start_collecting_key = false;
+               add_time = true;
+            } else{
+               if has_seen_dollar {
+                  result.push('$');
+                  has_seen_dollar = false;
+               }
+               result.push(ch);
+            }
+
+         },
+
          _ => {
-            if(has_seen_dollar){
-               key.push(ch)
+            if(start_collecting_key){
+               key.push(ch);
             }else{
+               if has_seen_dollar {
+                  result.push('$');
+                  has_seen_dollar = false;
+               }
                result.push(ch);
             }
          }
@@ -164,26 +192,26 @@ fn string_mapper(message: String, hash_map: &mut HashMap<String, String>)->Strin
             result.push_str(value);
          }else {
             result.push('$');
+            result.push('{');
             result.push_str(&key);
-         }
-         if(need_white_space){
-            result.push(' ');
+            result.push('}');
          }
 
-         need_white_space=false;
          key.clear();
          add_time = false;
       }
 
    }
+
+   //after for loop last check
+   if(start_collecting_key){
+      result.push('$');
+      result.push('{');
+      result.push_str(&key);
+   }
+   //cannot true both anyway
    if(has_seen_dollar){
-      if(key.len() > 0 && hash_map.contains_key(&key)){
-         let value= hash_map.get(&key).unwrap();
-         result.push_str(value);
-      }else {
-         result.push('$');
-         result.push_str(&key);
-      }
+      result.push('$');
    }
 
    result
@@ -192,7 +220,7 @@ fn string_mapper(message: String, hash_map: &mut HashMap<String, String>)->Strin
 
 // event implementation
 fn ask(event: Event, hash_map:&mut HashMap<String, String>)  {
-   println!("{}",event.command);
+   println!("\n{}",event.command);
    let mut user_responce:String=String::new();
    stdin().read_line(&mut user_responce).unwrap();
    hash_map.insert(event.param , user_responce.trim().to_string());
@@ -200,12 +228,12 @@ fn ask(event: Event, hash_map:&mut HashMap<String, String>)  {
 
 
 fn log(event: Event, hash_map: &mut HashMap<String, String>) {
-   println!("{}",string_mapper(event.command,hash_map));
+   println!("{}\n",string_mapper(event.command,hash_map));
 }
 
 fn run(event: Event, hash_map: &mut HashMap<String, String>) {
    let command:String = string_mapper(event.command,hash_map);
-
+   let parsed_para=string_mapper(event.param,hash_map);
    let parts: Vec<&str> = command.split_whitespace().collect();
    let mut cmd:Command;
 
@@ -213,8 +241,8 @@ fn run(event: Event, hash_map: &mut HashMap<String, String>) {
       cmd = Command::new(parts[0]);
       cmd.args(&parts[1..]);
 
-      if(hash_map.contains_key(&event.param)){
-         cmd.current_dir(hash_map.get(&event.param).unwrap());
+      if(parsed_para.len()>0){
+         cmd.current_dir(parsed_para);
       }
 
       match cmd.status() {
